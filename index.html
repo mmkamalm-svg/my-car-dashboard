@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>গাড়ি মোটর হিসাব ড্যাশবোর্ড</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-accent: #2563eb;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding-bottom: 30px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 18px 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 0.8rem;
+            opacity: 0.85;
+            margin-top: 3px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 12px;
+        }
+
+        /* Vehicle Tabs */
+        .tab-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 8px;
+            background-color: #e2e8f0;
+            color: var(--text-main);
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary-accent);
+            color: white;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Form Card */
+        .card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+            background-color: #f8fafc;
+        }
+
+        input:focus {
+            border-color: var(--primary-accent);
+            background-color: #ffffff;
+        }
+
+        input[readonly] {
+            background-color: #e2e8f0;
+            color: #475569;
+            font-weight: bold;
+        }
+
+        .btn-submit {
+            grid-column: span 2;
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin-top: 6px;
+            box-shadow: 0 2px 4px rgba(22, 163, 74, 0.2);
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 10px 8px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-card .value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            margin-top: 2px;
+        }
+
+        .stat-card .label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+        }
+
+        /* Table Container */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: white;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+            text-align: left;
+            min-width: 650px;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--text-main);
+            padding: 10px 8px;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .action-btn {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+
+        .export-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .btn-export {
+            background-color: #0f766e;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>গাড়ি হিসাব ব্যবস্থাপনা ড্যাশবোর্ড</h1>
+        <p>মোবাইল ডাটা এন্ট্রি ও ট্র্যাকিং সিস্টেম</p>
+    </header>
+
+    <div class="container">
+        <!-- Vehicle Select Tabs -->
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="switchVehicle('v1', this)">C M CHA<br>51-2447</button>
+            <button class="tab-btn" onclick="switchVehicle('v2', this)">C M GHA<br>11-3579</button>
+            <button class="tab-btn" onclick="switchVehicle('v3', this)">C M GA<br>11-4918</button>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="summary-grid">
+            <div class="stat-card">
+                <div class="label">মোট কিমি (Total KM)</div>
+                <div class="value" id="stat-km">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">মোট গ্যাস/অকটেন</div>
+                <div class="value" id="stat-fuel">৳0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">মোট খরচ (টোল+পার্টস)</div>
+                <div class="value" id="stat-cost">৳0</div>
+            </div>
+        </div>
+
+        <!-- Input Form -->
+        <div class="card">
+            <div class="card-title">
+                <span>নতুন হিসাব এন্ট্রি করুন</span>
+                <small id="current-vehicle-tag" style="color: var(--primary-accent); font-weight: normal;"></small>
+            </div>
+            <form id="entryForm" onsubmit="addRecord(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>C A - Date</label>
+                        <input type="date" id="ca_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>C B - Opening (KM)</label>
+                        <input type="number" step="any" id="cb_opening" oninput="calculateTotalKM()" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>C C - Closing (KM)</label>
+                        <input type="number" step="any" id="cc_closing" oninput="calculateTotalKM()" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>C D - Total (KM)</label>
+                        <input type="number" id="cd_total" readonly placeholder="অটো গণনা">
+                    </div>
+                    <div class="form-group">
+                        <label>C E - Gas/Octane (TK)</label>
+                        <input type="number" step="any" id="ce_fuel" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>C F - Toll Fee (TK)</label>
+                        <input type="number" step="any" id="cf_toll" placeholder="0">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>C G - Maintenance (Spare Parts)</label>
+                        <input type="text" id="cg_parts" placeholder="পার্টস বা কাজের নাম">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>C H - Spare Parts Cost (TK)</label>
+                        <input type="number" step="any" id="ch_parts_cost" placeholder="0">
+                    </div>
+                    <button type="submit" class="btn-submit">ডাটা সেভ করুন</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Data Table Card -->
+        <div class="card">
+            <div class="card-title">
+                <span>হিসাব বিবরণী (Excel Format)</span>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>C A-Date</th>
+                            <th>C B-OPENING</th>
+                            <th>C C-CLOSING</th>
+                            <th>C D-TOTAL</th>
+                            <th>C E-GAS/OCTEN</th>
+                            <th>C F-TOLL</th>
+                            <th>C G-MAINTAINESS</th>
+                            <th>C H-SPAIR COST</th>
+                            <th>অ্যাকশন</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Data rows will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="export-bar">
+                <span id="rowCount" style="font-size: 0.75rem; color: var(--text-muted);">মোট এন্ট্রি: 0</span>
+                <button class="btn-export" onclick="exportExcel()">Excel (CSV) ডাউনলোড</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const vehicleNames = {
+            'v1': 'C M CHA 51-2447',
+            'v2': 'C M GHA 11-3579',
+            'v3': 'C M GA 11-4918'
+        };
+
+        let currentVehicle = 'v1';
+
+        // Load data from LocalStorage or initialize empty object
+        let store = JSON.parse(localStorage.getItem('vehicle_dashboard_db')) || {
+            'v1': [],
+            'v2': [],
+            'v3': []
+        };
+
+        // Initialize Page
+        window.onload = function() {
+            document.getElementById('ca_date').valueAsDate = new Date();
+            renderDashboard();
+        };
+
+        function switchVehicle(vId, btnElement) {
+            currentVehicle = vId;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderDashboard();
+        }
+
+        function calculateTotalKM() {
+            const opening = parseFloat(document.getElementById('cb_opening').value) || 0;
+            const closing = parseFloat(document.getElementById('cc_closing').value) || 0;
+            const total = closing - opening;
+            document.getElementById('cd_total').value = total >= 0 ? total.toFixed(1) : 0;
+        }
+
+        function addRecord(e) {
+            e.preventDefault();
+
+            const record = {
+                id: Date.now(),
+                date: document.getElementById('ca_date').value,
+                opening: parseFloat(document.getElementById('cb_opening').value) || 0,
+                closing: parseFloat(document.getElementById('cc_closing').value) || 0,
+                total: parseFloat(document.getElementById('cd_total').value) || 0,
+                fuel: parseFloat(document.getElementById('ce_fuel').value) || 0,
+                toll: parseFloat(document.getElementById('cf_toll').value) || 0,
+                parts: document.getElementById('cg_parts').value || '-',
+                partsCost: parseFloat(document.getElementById('ch_parts_cost').value) || 0
+            };
+
+            store[currentVehicle].unshift(record); // Add to top
+            saveStore();
+            renderDashboard();
+
+            // Reset Form Fields (keep closing as next opening optional feature)
+            const nextOpening = record.closing;
+            document.getElementById('entryForm').reset();
+            document.getElementById('ca_date').valueAsDate = new Date();
+            if(nextOpening > 0) {
+                document.getElementById('cb_opening').value = nextOpening;
+            }
+        }
+
+        function deleteRecord(id) {
+            if(confirm("আপনি কি নিশ্চিত এই এন্ট্রিটি মুছে ফেলতে চান?")) {
+                store[currentVehicle] = store[currentVehicle].filter(r => r.id !== id);
+                saveStore();
+                renderDashboard();
+            }
+        }
+
+        function saveStore() {
+            localStorage.setItem('vehicle_dashboard_db', JSON.stringify(store));
+        }
+
+        function renderDashboard() {
+            document.getElementById('current-vehicle-tag').innerText = '(' + vehicleNames[currentVehicle] + ')';
+            const data = store[currentVehicle];
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            let sumKm = 0, sumFuel = 0, sumCost = 0;
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="no-data">কোনো তথ্য পাওয়া যায়নি। নতুন তথ্য সেভ করুন।</td></tr>`;
+            } else {
+                data.forEach(item => {
+                    sumKm += item.total;
+                    sumFuel += item.fuel;
+                    sumCost += (item.toll + item.partsCost);
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${item.date}</td>
+                        <td>${item.opening}</td>
+                        <td>${item.closing}</td>
+                        <td><strong>${item.total}</strong></td>
+                        <td>৳${item.fuel}</td>
+                        <td>৳${item.toll}</td>
+                        <td>${item.parts}</td>
+                        <td>৳${item.partsCost}</td>
+                        <td><button class="action-btn" onclick="deleteRecord(${item.id})">ডিলিট</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Update Summary Stats
+            document.getElementById('stat-km').innerText = sumKm.toFixed(1) + ' km';
+            document.getElementById('stat-fuel').innerText = '৳' + sumFuel.toLocaleString('bn-BD');
+            document.getElementById('stat-cost').innerText = '৳' + sumCost.toLocaleString('bn-BD');
+            document.getElementById('rowCount').innerText = `মোট এন্ট্রি: ${data.length}`;
+        }
+
+        function exportExcel() {
+            const data = store[currentVehicle];
+            if(data.length === 0) {
+                alert("ডাউনলোড করার মতো কোনো ডাটা নেই!");
+                return;
+            }
+
+            let csv = 'C A-Date,C B-OPENING(KM),C C-CLOSING(KM),C D-TOTAL(KM),C E-GAS/OCTEN(TK),C F-TOLL FEE (TK),C G-MAINTAINESS(SPAIR PARTS),C H-SPAIR PARTS COST(TK)\n';
+            
+            data.forEach(row => {
+                csv += `"${row.date}",${row.opening},${row.closing},${row.total},${row.fuel},${row.toll},"${row.parts}",${row.partsCost}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `${vehicleNames[currentVehicle]}_Report.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
